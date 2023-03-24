@@ -1,1 +1,1 @@
-java Spring db
+Learn how to access Database in Spring
