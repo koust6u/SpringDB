@@ -13,11 +13,10 @@ import javax.persistence.EntityManager;
 @Configuration
 @RequiredArgsConstructor
 public class QuerydslConfig {
-
     private final EntityManager em;
 
     @Bean
-    public ItemService itemService() {
+    public ItemService itemService(){
         return new ItemServiceV1(itemRepository());
     }
 
@@ -25,5 +24,4 @@ public class QuerydslConfig {
     public ItemRepository itemRepository() {
         return new JpaItemRepositoryV3(em);
     }
-
 }

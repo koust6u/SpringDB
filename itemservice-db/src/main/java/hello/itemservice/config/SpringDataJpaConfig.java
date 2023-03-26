@@ -12,17 +12,15 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @RequiredArgsConstructor
 public class SpringDataJpaConfig {
-
     private final SpringDataJpaItemRepository springDataJpaItemRepository;
 
     @Bean
-    public ItemService itemService() {
+    public ItemService itemService(){
         return new ItemServiceV1(itemRepository());
     }
 
     @Bean
-    public ItemRepository itemRepository() {
+    public ItemRepository itemRepository(){
         return new JpaItemRepositoryV2(springDataJpaItemRepository);
     }
-
 }

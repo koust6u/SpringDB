@@ -18,7 +18,6 @@ import java.util.Optional;
 public class JpaItemRepositoryV2 implements ItemRepository {
 
     private final SpringDataJpaItemRepository repository;
-
     @Override
     public Item save(Item item) {
         return repository.save(item);
@@ -43,14 +42,10 @@ public class JpaItemRepositoryV2 implements ItemRepository {
         Integer maxPrice = cond.getMaxPrice();
 
         if (StringUtils.hasText(itemName) && maxPrice != null) {
-//            return repository.findByItemNameLikeAndPriceLessThanEqual("%" + itemName + "%", maxPrice);
             return repository.findItems("%" + itemName + "%", maxPrice);
-        } else if (StringUtils.hasText(itemName)) {
+        } else if (StringUtils.hasText(itemName))
             return repository.findByItemNameLike("%" + itemName + "%");
-        } else if (maxPrice != null) {
-            return repository.findByPriceLessThanEqual(maxPrice);
-        } else {
-            return repository.findAll();
-        }
+        else if (maxPrice != null) return repository.findByPriceLessThanEqual(maxPrice);
+        else return repository.findAll();
     }
 }

@@ -1,7 +1,6 @@
 package hello.itemservice.repository.jpa;
 
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import hello.itemservice.domain.Item;
@@ -17,12 +16,11 @@ import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
 
-import static hello.itemservice.domain.QItem.*;
+import static hello.itemservice.domain.QItem.item;
 
 @Repository
 @Transactional
 public class JpaItemRepositoryV3 implements ItemRepository {
-
     private final EntityManager em;
     private final JPAQueryFactory query;
 
@@ -39,7 +37,7 @@ public class JpaItemRepositoryV3 implements ItemRepository {
 
     @Override
     public void update(Long itemId, ItemUpdateDto updateParam) {
-        Item findItem = em.find(Item.class, itemId);
+        Item findItem = findById(itemId).orElseThrow();
         findItem.setItemName(updateParam.getItemName());
         findItem.setPrice(updateParam.getPrice());
         findItem.setQuantity(updateParam.getQuantity());
@@ -51,19 +49,18 @@ public class JpaItemRepositoryV3 implements ItemRepository {
         return Optional.ofNullable(item);
     }
 
-    public List<Item> findAllOld(ItemSearchCond cond) {
 
-        String itemName = cond.getItemName();
-        Integer maxPrice = cond.getMaxPrice();
+    public List<Item> findAllOld(ItemSearchCond itemSearch) {
+        String itemName = itemSearch.getItemName();
+        Integer maxPrice = itemSearch.getMaxPrice();
 
         QItem item = QItem.item;
         BooleanBuilder builder = new BooleanBuilder();
-        if (StringUtils.hasText(itemName)) {
+        if(StringUtils.hasText(itemName)){
             builder.and(item.itemName.like("%" + itemName + "%"));
         }
-        if (maxPrice != null) {
+        if(maxPrice != null)
             builder.and(item.price.loe(maxPrice));
-        }
 
         List<Item> result = query
                 .select(item)
@@ -75,29 +72,26 @@ public class JpaItemRepositoryV3 implements ItemRepository {
     }
 
     @Override
-    public List<Item> findAll(ItemSearchCond cond) {
-
+    public List<Item> findAll(ItemSearchCond cond){
         String itemName = cond.getItemName();
         Integer maxPrice = cond.getMaxPrice();
 
-        return query
+        List<Item> result = query
                 .select(item)
                 .from(item)
                 .where(likeItemName(itemName), maxPrice(maxPrice))
                 .fetch();
+        return result;
     }
 
-    private BooleanExpression likeItemName(String itemName) {
-        if (StringUtils.hasText(itemName)) {
-            return item.itemName.like("%" + itemName + "%");
-        }
+    private BooleanExpression likeItemName(String itemName){
+        if(StringUtils.hasText(itemName)) return item.itemName.like("%" + itemName+ "%");
         return null;
     }
 
-    private BooleanExpression maxPrice(Integer maxPrice) {
-        if (maxPrice != null) {
-            return item.price.loe(maxPrice);
-        }
+    private BooleanExpression maxPrice(Integer maxPrice){
+        if(maxPrice != null)return item.price.loe(maxPrice);
+
         return null;
     }
 }
